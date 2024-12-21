@@ -38,7 +38,7 @@ public class EmployeeService {
         return employeeRepo.findById(id);
     }
 
-    public String updateEmployee(ObjectId id, EmployeesHelper employeesHelper) {
+    public String updateById(ObjectId id, EmployeesHelper employeesHelper) {
         Employees oldEmployee = employeeRepo.findById(id).orElse(null);
         if (oldEmployee == null) {
             return "Record is not found by this id";
@@ -64,6 +64,7 @@ public class EmployeeService {
             return "employee is not found by this id : " + id;
         }
         employeeRepo.deleteById(id);
+        // TODO: remove data from users also
         return "employee deleted by this id : " + id;
     }
 
@@ -75,7 +76,6 @@ public class EmployeeService {
     /// ///////////////////// by email////////////////
     public Optional<Employees> findByEmail(String empEmail) {
         return employeeRepo.findByEmail(empEmail);
-
     }
 
     public String deleteByEmail(String empEmail) {
@@ -84,6 +84,7 @@ public class EmployeeService {
             return "employee is not available on this email...... ";
         }
         employeeRepo.deleteByEmail(empEmail);
+        // TODO: remove data from users also
         return "employee is deleted through this email : " + empEmail;
     }
 
@@ -91,7 +92,7 @@ public class EmployeeService {
         return employeeRepo.existsByEmail(empEmail);
     }
 
-    public String updateEmployee(String empEmail, EmployeesHelper employeesHelper) {
+    public String updateByEmail(String empEmail, EmployeesHelper employeesHelper) {
         Employees oldEmployee = employeeRepo.findByEmail(empEmail).orElse(null);
         if (oldEmployee == null) {
             return "Employee is not found....";

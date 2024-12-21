@@ -12,36 +12,41 @@ import java.util.Optional;
 @RestController
 public class EmployeesController {
     @Autowired
- private   EmployeeService employeeService;
+    private EmployeeService employeeService;
+
     @PostMapping("/employees")
-    public void saveEmployee(@RequestBody EmployeesHelper employeesHelper){
+    public void saveEmployee(@RequestBody EmployeesHelper employeesHelper) {
         employeeService.saveEmployee(employeesHelper);
     }
-  @GetMapping("/employees-id/{id}")
+
+    @GetMapping("/employees-id/{id}")
     public Optional<Employees> findById(@PathVariable ObjectId id) {
         return employeeService.findById(id);
     }
 
     @PutMapping("/employees-id/{id}")
-    public String updateEmployee(@PathVariable ObjectId id,@RequestBody EmployeesHelper employeesHelper){
-      return  employeeService.updateEmployee(id,employeesHelper);
+    public String updateById(@PathVariable ObjectId id, @RequestBody EmployeesHelper employeesHelper) {
+        return employeeService.updateById(id, employeesHelper);
     }
-  @DeleteMapping("/employees-id/{id}")
-    public String deleteById(@PathVariable ObjectId id){
+
+    @DeleteMapping("/employees-id/{id}")
+    public String deleteById(@PathVariable ObjectId id) {
         return employeeService.deleteById(id);
     }
 
     /// /////////////by email/////////////
     @PutMapping("/employees-email/{email}")
-    public String updateEmployee(@PathVariable String empEmail,@RequestBody EmployeesHelper employeesHelper){
-        return employeeService.updateEmployee(empEmail,employeesHelper);
+    public String updateByEmail(@PathVariable String email, @RequestBody EmployeesHelper employeesHelper) {
+        return employeeService.updateByEmail(email, employeesHelper);
     }
+
     @DeleteMapping("/employees-email/{email}")
-    public String deleteByEmail(@PathVariable String empEmail){
-        return employeeService.deleteByEmail(empEmail);
+    public String deleteByEmail(@PathVariable String email) {
+        return employeeService.deleteByEmail(email);
     }
+
     @GetMapping("/employees-email/{email}")
-    public Optional<Employees> findByEmail(@PathVariable String empEmail){
-        return employeeService.findByEmail(empEmail);
+    public Optional<Employees> findByEmail(@PathVariable String email) {
+        return employeeService.findByEmail(email);
     }
 }

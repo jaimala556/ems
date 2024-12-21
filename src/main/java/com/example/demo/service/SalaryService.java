@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-
 public class SalaryService {
     @Autowired
     private SalaryRepo salaryRepo;

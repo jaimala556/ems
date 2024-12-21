@@ -16,7 +16,7 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @PostMapping("/department")
-    public void savedepartment(@RequestBody DepartmentHelper departmentHelper) {
+    public void saveDepartment(@RequestBody DepartmentHelper departmentHelper) {
         departmentService.savedepartment(departmentHelper);
     }
 
@@ -42,17 +42,17 @@ public class DepartmentController {
 
     /// /////////////////////// by name////
     @GetMapping("/department-name/{deptName}")
-    public Optional<Departments> findByDeptName( @PathVariable String deptName){
+    public Optional<Departments> findByDeptName(@PathVariable String deptName) {
         return departmentService.findByDeptName(deptName);
     }
 
     @DeleteMapping("/department-name/{deptName}")
-    public String deleteByDeptName(@PathVariable String deptName){
+    public String deleteByDeptName(@PathVariable String deptName) {
         return departmentService.deleteByDeptName(deptName);
     }
 
     @PutMapping("/department-name/{deptName}")
-    public String updateByDeptName(@PathVariable String deptName, @RequestBody DepartmentHelper departmentHelper){
-        return departmentService.updateByDeptName(deptName,departmentHelper);
+    public String updateByDeptName(@PathVariable String deptName, @RequestBody DepartmentHelper departmentHelper) {
+        return departmentService.updateByDeptName(deptName, departmentHelper);
     }
 }
