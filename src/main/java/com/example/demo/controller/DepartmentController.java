@@ -16,8 +16,8 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @PostMapping("/department")
-    public void saveDepartment(@RequestBody DepartmentHelper departmentHelper) {
-        departmentService.savedepartment(departmentHelper);
+    public String saveDepartment(@RequestBody DepartmentHelper departmentHelper) {
+        return departmentService.savedepartment(departmentHelper);
     }
 
     @GetMapping("/department/{id}")

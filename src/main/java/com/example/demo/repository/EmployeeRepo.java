@@ -10,5 +10,4 @@ public interface EmployeeRepo extends MongoRepository<Employees, ObjectId> {
      Optional<Employees> findByEmail(String empEmail);
      void deleteByEmail(String empEmail);
      boolean existsByEmail(String empEmail);
-
 }

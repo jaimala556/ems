@@ -1,0 +1,32 @@
+[
+  {
+    "deptName": "Admin",
+    "description": "Handles administrative tasks and ensures smooth office operations.",
+    "maxEmployee": 10,
+    "isActive": true
+  },
+  {
+    "deptName": "HR",
+    "description": "Manages employee relations, recruitment, and organizational policies.",
+    "maxEmployee": 15,
+    "isActive": true
+  },
+  {
+    "deptName": "Manager",
+    "description": "Oversees department operations and team performance.",
+    "maxEmployee": 5,
+    "isActive": true
+  },
+  {
+    "deptName": "IT",
+    "description": "Responsible for maintaining and upgrading technological systems.",
+    "maxEmployee": 20,
+    "isActive": true
+  },
+  {
+    "deptName": "Customer Care",
+    "description": "Provides support and assistance to customers regarding services or products.",
+    "maxEmployee": 25,
+    "isActive": true
+  }
+]

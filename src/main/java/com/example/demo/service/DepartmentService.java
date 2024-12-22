@@ -16,16 +16,22 @@ import java.util.Optional;
 public class DepartmentService {
     @Autowired
     private DepartmentRepo departmentRepo;
+    @Autowired
+    private EmployeeService employeeService;
 
-    public void savedepartment(DepartmentHelper departmentHelper) {
+    public String savedepartment(DepartmentHelper departmentHelper) {
+        // return if already exists
+        if (departmentRepo.existsByDeptName(departmentHelper.getDeptName().toLowerCase().trim()))
+            return "Department already exists";
+        // create new
         Departments departments = new Departments();
-        departments.setDeptName(departmentHelper.getDeptName());
-        departments.setDescription(departmentHelper.getDescription());
-        departments.setMaxEmployee(departmentHelper.getMaxEmployee());
+        departments.setDeptName(departmentHelper.getDeptName().trim().toLowerCase());
+        departments.setDescription(departmentHelper.getDescription().trim().toLowerCase());
+//        departments.setMaxEmployee(departmentHelper.getMaxEmployee());
         departments.setActive(departmentHelper.isActive());
         departments.setLastUpdate(LocalDateTime.now());
         departmentRepo.save(departments);
-
+        return "Department created";
     }
 
     public Optional<Departments> findById(ObjectId id) {
@@ -33,10 +39,12 @@ public class DepartmentService {
     }
 
     public String deleteById(ObjectId id) {
-        boolean isAvailable = departmentRepo.existsById(id);
-        if (!isAvailable) {
-            return "Department not found";
-        }
+        Departments departments = departmentRepo.findById(id).orElse(null);
+        if (departments == null) return "Department not found";
+
+        if (employeeService.checkEmployeeForDepartment(departments.getDeptName()))
+            return "Employee exists.. department not deleted";
+
         departmentRepo.deleteById(id);
         return "department deleted successfully";
     }
@@ -46,11 +54,15 @@ public class DepartmentService {
         if (oldDepartment == null) {
             return "Department not available by this Id : " + id;
         }
-        oldDepartment.setDeptName(departmentHelper.getDeptName());
+        // checking record is updated, not null, not equal
+        if (departmentHelper.getDeptName() != null && !departmentHelper.getDeptName().isEmpty() && !departmentHelper.getDeptName().equals(oldDepartment.getDeptName())) {
+            oldDepartment.setDeptName(departmentHelper.getDeptName());
+        }
         oldDepartment.setDescription(departmentHelper.getDescription());
         oldDepartment.setMaxEmployee(departmentHelper.getMaxEmployee());
-        oldDepartment.setLastUpdate(LocalDateTime.now());
         oldDepartment.setActive(departmentHelper.isActive());
+
+        oldDepartment.setLastUpdate(LocalDateTime.now());
         departmentRepo.save(oldDepartment);
         return "Department Updated Successfully";
     }
@@ -72,10 +84,8 @@ public class DepartmentService {
     }
 
     public String deleteByDeptName(String deptName) {
-        boolean isAvailable = departmentRepo.existsByDeptName(deptName);
-        if (!isAvailable) {
-            return "Department name is not available .......";
-        }
+        if (!departmentRepo.existsByDeptName(deptName)) return "Department name is not available .......";
+        if (employeeService.checkEmployeeForDepartment(deptName)) return "Employee exists.. department not deleted";
         departmentRepo.deleteByDeptName(deptName);
         return "department is deleted successfully.......";
     }
@@ -97,7 +107,13 @@ public class DepartmentService {
         oldDepartment.setActive(departmentHelper.isActive());
         departmentRepo.save(oldDepartment);
         return "department is updated";
-
     }
 
+    // accept department name and return their no. of employees
+    public int numberOfEmployeeDept(String department) {
+        Departments departments = departmentRepo.findByDeptName(department).orElse(null);
+        if (departments == null)
+            return 0;
+        return departments.getMaxEmployee();
+    }
 }

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,22 +18,63 @@ public class EmployeeService {
     private EmployeeRepo employeeRepo;
     @Autowired
     private UsersService usersService;
+    @Autowired
+    private DepartmentService departmentService;
+    @Autowired
+    private ProjectsService projectsService;
 
-    /// ////////////// by id /////////////////////////////
-    public void saveEmployee(EmployeesHelper employeesHelper) {
+    ///////////////// by id /////////////////////////////
+    public String saveEmployee(EmployeesHelper employeesHelper) {
+        // check user email is already exists or not
+        if (employeeRepo.existsByEmail(employeesHelper.getEmail()))
+            return "Employee already registered with this email address";
+
+        // check department is valid or not
+        if (departmentService.existsByDeptName(employeesHelper.getDepartmentName().trim().toLowerCase()))
+            return "Invalid department";
+
+        // how many employees are register in specific department
+        // validate department members
+        // admin-> 10
+        // hr-> 15
+        // manager-> 5
+        // it-> 20
+        // customer care-> 25
+        List<Employees> allEmployees = employeeRepo.findAll();
+        int maxEmpInDepartment = departmentService.numberOfEmployeeDept(employeesHelper.getDepartmentName().trim().toLowerCase());
+        int totalEmp = 0;
+
+        // find no. of employees
+        for (Employees employees : allEmployees)
+            if (employees.getDepartmentName().equals(employeesHelper.getDepartmentName())) totalEmp++;
+        if (totalEmp == maxEmpInDepartment) return "Employees limit reached";
+
+        // save user
         Employees employees = new Employees();
         employees.setFirstName(employeesHelper.getFirstName().trim().toLowerCase());
         employees.setLastName(employeesHelper.getLastName().trim().toLowerCase());
         employees.setActive(employeesHelper.isActive());
         employees.setEmail(employeesHelper.getEmail().trim().toLowerCase());
-        employees.setLastUpdate(LocalDateTime.now());
         employees.setHireBy(employeesHelper.getHireBy());
         employees.setBaseSalary(employeesHelper.getBaseSalary());
         employees.setDepartmentName(employeesHelper.getDepartmentName().trim().toLowerCase());
         employees.setJoiningDate(employeesHelper.getJoiningDate());
-        employees.setProjectIds(employeesHelper.getProjectIds());
+
+        // verify project ids if available in helper
+        List<ObjectId> invalidProjectIds = new ArrayList<>();// invalid project ids
+        if (!employeesHelper.getProjectIds().isEmpty()) {
+            List<ObjectId> ids = new ArrayList<>();// valid project ids
+
+            for (ObjectId id : employeesHelper.getProjectIds()) {
+                if (projectsService.existsById(id)) ids.add(id);
+                else invalidProjectIds.add(id);
+            }
+            employees.setProjectIds(ids);
+        }
+        employees.setLastUpdate(LocalDateTime.now());
         Employees newEmployee = employeeRepo.save(employees);
         usersService.addUsers(employees.getFirstName(), employees.getEmail(), newEmployee.getId());
+        return "Employee saved";// invalid project id are return
     }
 
     public Optional<Employees> findById(ObjectId id) {
@@ -46,16 +89,15 @@ public class EmployeeService {
         oldEmployee.setFirstName(employeesHelper.getFirstName());
         oldEmployee.setLastName(employeesHelper.getLastName());
         oldEmployee.setActive(employeesHelper.isActive());
-        oldEmployee.setEmail(employeesHelper.getEmail().trim().toLowerCase());
-        oldEmployee.setLastUpdate(LocalDateTime.now());
+        oldEmployee.setEmail(employeesHelper.getEmail().trim().toLowerCase()); // change the email in users
         oldEmployee.setHireBy(employeesHelper.getHireBy());
         oldEmployee.setBaseSalary(employeesHelper.getBaseSalary());
-        oldEmployee.setDepartmentName(employeesHelper.getDepartmentName().trim().toLowerCase());
+        oldEmployee.setDepartmentName(employeesHelper.getDepartmentName().trim().toLowerCase()); //
         oldEmployee.setJoiningDate(employeesHelper.getJoiningDate());
         oldEmployee.setProjectIds(employeesHelper.getProjectIds());
+        oldEmployee.setLastUpdate(LocalDateTime.now());
         employeeRepo.save(oldEmployee);
-        return "Employee is updated successfullly";
-
+        return "Employee is updated successfully";
     }
 
     public String deleteById(ObjectId id) {
@@ -73,7 +115,7 @@ public class EmployeeService {
 
     }
 
-    /// ///////////////////// by email////////////////
+    //////////////////////// by email ////////////////
     public Optional<Employees> findByEmail(String empEmail) {
         return employeeRepo.findByEmail(empEmail);
     }
@@ -109,5 +151,13 @@ public class EmployeeService {
         oldEmployee.setProjectIds(employeesHelper.getProjectIds());
         employeeRepo.save(oldEmployee);
         return "employee is updated....";
+    }
+
+    public boolean checkEmployeeForDepartment(String department) {
+        List<Employees> allEmployees = employeeRepo.findAll();
+        for (Employees employees : allEmployees) {
+            if (employees.getDepartmentName().equals(department)) return true;
+        }
+        return false;
     }
 }
